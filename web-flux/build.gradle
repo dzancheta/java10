@@ -1,0 +1,88 @@
+buildscript {
+    ext {
+        springBootVersion = '2.0.2.RELEASE'
+    }
+    repositories {
+        mavenLocal()
+        mavenCentral()
+
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+plugins {
+    id "org.springframework.boot" version "2.0.2.RELEASE"
+    id 'java-library'
+    id 'java'
+    id 'jacoco'
+    id "org.sonarqube" version "2.6.2"
+}
+
+dependencies {
+//    compile project(':contract')
+    compile project(':impl')
+}
+
+allprojects {
+
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+    apply plugin: 'jacoco'
+
+    group 'br.com.zancheta'
+    version '1.0-SNAPSHOT'
+    sourceCompatibility = JavaVersion.VERSION_1_10
+    targetCompatibility = JavaVersion.VERSION_1_10
+
+
+    repositories {
+        mavenLocal()
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        compile("org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}")
+        compile("org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}")
+        compileOnly 'javax.annotation:javax.annotation-api:1.3.1'
+        compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-sleuth', version: '2.0.0.RELEASE'
+
+        compile('javax.xml.bind:jaxb-api:2.3.0')
+        compile('com.sun.xml.bind:jaxb-core:2.3.0')
+        compile('com.sun.xml.bind:jaxb-impl:2.3.0')
+        compile('javax.activation:activation:1.1.1')
+        compile('com.google.code.gson:gson:2.8.5')
+
+        testCompile group: 'com.h2database', name: 'h2', version: '1.4.197'
+        testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.3.0'
+        testCompile group: 'de.flapdoodle.embed', name: 'de.flapdoodle.embed.mongo', version: '2.1.1'
+        testCompile group: 'io.projectreactor', name: 'reactor-test', version: '3.1.9.RELEASE'
+        testCompile("org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}")
+        testCompile("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
+    }
+
+    jacocoTestReport {
+        reports {
+            html.enabled = true
+            xml.enabled = true
+            csv.enabled = false
+        }
+    }
+}
+
+jacocoTestReport {
+    reports {
+        html.enabled = true
+        xml.enabled = true
+        csv.enabled = false
+    }
+}
+
+task jacocoMerge(type: JacocoMerge) {
+    subprojects.each { subproject ->
+        executionData subproject.tasks.withType(Test)
+    }
+}
